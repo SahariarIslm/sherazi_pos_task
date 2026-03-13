@@ -2,7 +2,7 @@
 
 ## ⏱ Time Limit: 2 Hours
 
-## Due to load Sheddin I had to create separate videos but I tried to complete the process in two hours
+## Due to load Shedding I had to create separate videos but I tried to complete the process in two hours
 
 ---
 
