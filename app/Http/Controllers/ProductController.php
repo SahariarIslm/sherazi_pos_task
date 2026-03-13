@@ -6,26 +6,32 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class ProductController extends Controller
 {
     public function index()
     {
-        // eager loading
-        $products = Product::with('category')->get();
+        $seconds = 3600;
+        $data = Cache::tags(['products'])->remember('all_products', $seconds, function () {
+            // eager loading
+            $products = Product::with('category')->get();
 
-        $result = [];
-        foreach ($products as $product) {
-            $result[] = [
-                'id'       => $product->id,
-                'name'     => $product->name,
-                'price'    => $product->price,
-                'stock'    => $product->stock,
-                'category' => $product->category->name,
-            ];
-        }
+            $result = [];
+            foreach ($products as $product) {
+                $result[] = [
+                    'id'       => $product->id,
+                    'name'     => $product->name,
+                    'price'    => $product->price,
+                    'stock'    => $product->stock,
+                    'category' => $product->category->name,
+                ];
+            }
 
-        return response()->json($result);
+            return $result;
+        });
+
+        return response()->json($data);
     }
 
     public function salesReport()
@@ -50,23 +56,29 @@ class ProductController extends Controller
 
     public function dashboard()
     {
-        $totalProducts = Product::all()->count();
-        $totalOrders   = Order::all()->count();
-        $totalRevenue  = Order::all()->sum('total_amount');
-        $categories    = Category::all();
+        $seconds = 3600;
+        $data = Cache::tags(['dashboard'])->remember('dashboard_stats', $seconds, function () {
 
-        $topProducts = Product::all()
-            ->sortByDesc('sold_count')
-            ->take(5)
-            ->values();
+            $totalProducts = Product::count();
+            $totalOrders   = Order::count();
+            $totalRevenue  = Order::sum('total_amount');
+            $categories    = Category::all();
 
-        return response()->json([
-            'total_products' => $totalProducts,
-            'total_orders'   => $totalOrders,
-            'total_revenue'  => $totalRevenue,
-            'categories'     => $categories,
-            'top_products'   => $topProducts,
-        ]);
+            $topProducts = Product::all()
+                ->sortByDesc('sold_count')
+                ->take(5)
+                ->values();
+
+            return [
+                'total_products' => $totalProducts,
+                'total_orders'   => $totalOrders,
+                'total_revenue'  => $totalRevenue,
+                'categories'     => $categories,
+                'top_products'   => $topProducts,
+            ];
+        });
+        return response()->json($data);
+
     }
 
     public function search(Request $request)
@@ -89,7 +101,8 @@ class ProductController extends Controller
         ]);
 
         $product = Product::create($request->all());
-
+        // flush cache after a new product been added
+        Cache::tags(['dashboard','products'])->flush();
         return response()->json($product, 201);
     }
 }

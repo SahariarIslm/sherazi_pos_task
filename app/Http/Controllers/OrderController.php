@@ -46,6 +46,8 @@ class OrderController extends Controller
 
         $order->update(['total_amount' => $totalAmount]);
 
+        // flush cache after a new Order been created
+        Cache::tags(['dashboard'])->flush();
         return response()->json($order, 201);
     }
 
