@@ -11,7 +11,8 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::all();
+        // eager loading
+        $products = Product::with('category')->get();
 
         $result = [];
         foreach ($products as $product) {
@@ -29,7 +30,7 @@ class ProductController extends Controller
 
     public function salesReport()
     {
-        $orders = Order::all();
+        $orders = Order::with(['items.product', 'customer'])->get();
 
         $report = [];
         foreach ($orders as $order) {

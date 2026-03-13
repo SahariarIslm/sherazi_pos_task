@@ -22,6 +22,9 @@ cd sherazi-pos-task
 # 2. Install dependencies
 composer install
 
+# Developer Comment 1:  Since the downloaded project didn't carry required folders and files to run a laravel project in windows PC we had to migrate all the files to a fresh laravel project
+
+
 # 3. Copy environment file
 cp .env.example .env
 
