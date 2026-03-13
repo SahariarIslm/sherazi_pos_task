@@ -2,6 +2,8 @@
 
 ## ⏱ Time Limit: 2 Hours
 
+## Due to load Sheddin I had to create separate videos but I tried to complete the process in two hours
+
 ---
 
 ## 📌 Task Overview
@@ -71,21 +73,24 @@ php artisan serve
 -`/api/orders`, 
 # Developer Comment 9: pagination added 
 -`/api/products/sales-report` return ALL records
-# Developer Comment 9: pagination added 
+# Developer Comment 10: pagination added 
 - Add proper pagination (15 per page)
 
 ### 4. Database Indexing
 - `products.name` — missing index (used in LIKE search)
 - `orders.status` — missing index (used in WHERE filter)
 - `products.sold_count` — missing index (used in ORDER BY)
+# Developer Comment 11: Database Index added by migration
 
 ### 5. No DB Transaction in Order Creation
 - `POST /api/orders` — if one item fails, partial data is saved
 - Wrap in `DB::transaction()`
+# Developer Comment 11: DB Transaction added in Order Creation
 
 ### 6. SQL Injection Risk
 - `GET /api/orders/filter?status=` — raw query with direct variable
 - Fix using query bindings or Eloquent
+# Developer Comment 11: SQL Injection Risk is ommited by Eloquent
 
 ### 7. Inefficient Counting & Aggregation
 - `Product::all()->count()` — loads all rows into memory just to count
