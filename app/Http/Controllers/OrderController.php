@@ -7,6 +7,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class OrderController extends Controller
 {
@@ -47,25 +48,34 @@ class OrderController extends Controller
         $order->update(['total_amount' => $totalAmount]);
 
         // flush cache after a new Order been created
-        Cache::tags(['dashboard'])->flush();
+        Cache::tags(['dashboard','orders'])->flush();
         return response()->json($order, 201);
     }
 
     public function index()
     {
-        $orders = Order::with(['customer','items'])->get();
+        $seconds = 3600;
+        $page = request()->get('page',1);
 
-        $data = [];
-        foreach ($orders as $order) {
-            $data[] = [
-                'id'          => $order->id,
-                'customer'    => $order->customer->name,
-                'total'       => $order->total_amount,
-                'status'      => $order->status,
-                'items_count' => $order->items->count(),
-                'created_at'  => $order->created_at,
-            ];
-        }
+        $data = Cache::tags(['orders'])->remember('order_page_'.$page,$seconds,function(){
+            $orders = Order::with(['customer','items'])->paginate(15);
+
+
+            $result = $orders->getCollection()->map(function($order) {
+                return [
+                    'id'          => $order->id,
+                    'customer'    => $order->customer->name,
+                    'total'       => $order->total_amount,
+                    'status'      => $order->status,
+                    'items_count' => $order->items->count(),
+                    'created_at'  => $order->created_at,
+                ];
+            });
+
+            $orders->setCollection($result);
+            return $orders;
+        });
+
 
         return response()->json($data);
     }

@@ -13,9 +13,10 @@ class ProductController extends Controller
     public function index()
     {
         $seconds = 3600;
-        $data = Cache::tags(['products'])->remember('all_products', $seconds, function () {
+        $page = request()->get('page',1);
+        $data = Cache::tags(['products'])->remember('products_page_'.$page, $seconds, function () {
             // eager loading
-            $products = Product::with('category')->get();
+            $products = Product::with('category')->paginate(15);
 
             $result = [];
             foreach ($products as $product) {
@@ -36,22 +37,29 @@ class ProductController extends Controller
 
     public function salesReport()
     {
-        $orders = Order::with(['items.product', 'customer'])->get();
 
-        $report = [];
-        foreach ($orders as $order) {
-            foreach ($order->items as $item) {
-                $report[] = [
-                    'order_id'     => $order->id,
-                    'product_name' => $item->product->name,
-                    'qty'          => $item->quantity,
-                    'total'        => $item->quantity * $item->product->price,
-                    'customer'     => $order->customer->name,
-                ];
+        $seconds = 3600;
+        $page = request()->get('page',1);
+        $data = Cache::tags(['sales_report'])->remember('sales_report_page_'.$page, $seconds, function () {
+
+            $orders = Order::with(['items.product', 'customer'])->get();
+
+            $report = [];
+            foreach ($orders as $order) {
+                foreach ($order->items as $item) {
+                    $report[] = [
+                        'order_id'     => $order->id,
+                        'product_name' => $item->product->name,
+                        'qty'          => $item->quantity,
+                        'total'        => $item->quantity * $item->product->price,
+                        'customer'     => $order->customer->name,
+                    ];
+                }
             }
-        }
+            return $report;
+        });
 
-        return response()->json($report);
+        return response()->json($data);
     }
 
     public function dashboard()

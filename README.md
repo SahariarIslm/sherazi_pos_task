@@ -1,4 +1,4 @@
-# 🧪 Sherazi IT — Senior Laravel Developer Interview Task
+# 🧪 Sherazi IT — Senior Laravel Developer Interview Task with developer comments added
 
 ## ⏱ Time Limit: 2 Hours
 
@@ -52,16 +52,26 @@ php artisan serve
 
 ### 1. N+1 Query Problems
 - `GET /api/products` — category loaded per product in a loop
+# Developer Comment 2: eager loading added
 - `GET /api/orders` — customer & items loaded per order in a loop
+# Developer Comment 3: eager loading array with([array(parameters...)]) added
 - `GET /api/products/sales-report` — nested N+1 (order → items → product)
-
+# Developer Comment 4: nested eager loading with([array(parameters...)]) added
 ### 2. Missing Caching
 - `GET /api/products/dashboard` hits DB every request
+# Developer Comment 5: redis cache with tags has been implemented
 - `GET /api/products` no cache layer
+# Developer Comment 6: redis cache with tags has been implemented
 - Cache must **invalidate** when data changes
+# Developer Comment 7: cache flushed when new product or order is created
 
 ### 3. No Pagination
-- `/api/products`, `/api/orders`, `/api/products/sales-report` return ALL records
+- `/api/products`,
+# Developer Comment 8: pagination added 
+-`/api/orders`, 
+# Developer Comment 9: pagination added 
+-`/api/products/sales-report` return ALL records
+# Developer Comment 9: pagination added 
 - Add proper pagination (15 per page)
 
 ### 4. Database Indexing
@@ -80,6 +90,7 @@ php artisan serve
 ### 7. Inefficient Counting & Aggregation
 - `Product::all()->count()` — loads all rows into memory just to count
 - Use `Product::count()` and `DB::` aggregates instead
+# Developer Comment 6: the all() chain method is removed from count for better memory optimization
 
 ---
 
