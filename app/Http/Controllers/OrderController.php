@@ -87,7 +87,7 @@ class OrderController extends Controller
     {
         $status = $request->input('status');
 
-        $orders = DB::select("SELECT * FROM orders WHERE status = '$status'");
+        $orders = Order::where('status',$status)->get();
 
         return response()->json($orders);
     }
